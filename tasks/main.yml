@@ -1,0 +1,3 @@
+---
+# tasks file for ansible-role-consul
+- include: consul.yml

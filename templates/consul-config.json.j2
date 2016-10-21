@@ -1,0 +1,39 @@
+{
+    "client_addr": "{{consul_client_addr}}",
+    "data_dir": "{{consul_data_dir}}",
+    "leave_on_terminate": "{{consul_leave_on_terminate}}",
+    "ui_dir": "/ui",
+    "server": {{consul_server | to_json }},
+    "dns_config": {
+        "allow_stale": false
+    },
+    "ports": {
+        "dns"     : {{consl_dns_port}},
+        "http"    : {{consul_httpapi_port}},
+        "rpc"     : {{consul_rpc_port}},
+        "serf_lan": {{consul_serflan_port}},
+        "serf_wan": {{consul_serfwan_port}},
+        "server"  : {{consul_serverrpc_port}}
+    },
+    "advertise_addr": "{{consul_ipaddress}}",
+    "advertise_addrs": {
+        "serf_lan": "{{consul_ipaddress}}:{{consul_serflan_port}}",
+        "rpc": "{{consul_ipaddress}}:{{consul_serverrpc_port}}",
+        "serf_wan": "{{consul_ipaddress}}:{{consul_serfwan_port}}"
+    },
+    {% if (consul_join is defined) and (consul_join_interval is defined) -%}
+    "retry_join": {{consul_join | to_json }},
+    "retry_interval": "{{consul_join_interval}}",
+    "rejoin_after_leave": "{{consul_rejoin_after_leave}}",
+    {% endif -%}
+    {% if consul_server -%}
+    "bootstrap_expect": {{consul_bootstrap_expect}},
+    "datacenter": "{{consul_datacenter}}",
+    "acl_datacenter": "{{consul_acl_datacenter}}",
+    "acl_default_policy": "deny",
+    "acl_master_token": "{{acl_master_token}}",
+    {% else -%}
+    "acl_token": "{{acl_token}}",
+    {% endif -%}
+    "node_name": "{{consul_nodename}}"
+}

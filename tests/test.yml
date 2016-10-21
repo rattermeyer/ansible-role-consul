@@ -1,0 +1,8 @@
+---
+- hosts: consulhosts
+  roles:
+  - role: rattermeyer.docker
+    pip_version_docker_py: 1.7.0
+    docker_group_members: ubuntu
+  - role: ansible-role-consul
+    tags: consul
