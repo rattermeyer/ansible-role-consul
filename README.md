@@ -1,8 +1,7 @@
 Consul
 =========
 
-This role installs consul and optionally installs dnsmasq and configures it to forward dns requests to consul
-
+This role currently installs consul as a docker container on the hosts.
 
 Role Variables
 --------------
@@ -11,6 +10,8 @@ A description of the settable variables for this role should go here, including 
 
 Dependencies
 ------------
+
+Docker must be installed on the consul hosts
 
 Example Playbook
 ----------------

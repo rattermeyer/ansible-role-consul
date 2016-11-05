@@ -1,6 +1,11 @@
 - name: Install python-consul
   pip:  name=python-consul  state=present
 
+- name: Ensure directory exists
+  file:
+    path: "{{consul_dir_config}}"
+    state: directory
+
 - name: "templating consul-config"
   template:
     src: consul-config.json.j2
@@ -23,4 +28,3 @@
     hostname: "{{ ansible_hostname }}"
     volumes: "{{consul_volumes}}"
     command: agent
-  when: consul_is_server is defined and consul_is_server
