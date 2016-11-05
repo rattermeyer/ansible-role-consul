@@ -2,7 +2,7 @@
 - hosts: consulhosts
   roles:
   - role: rattermeyer.docker
-    docker_group_members: ubuntu
+    docker_group_members: vagrant
   - role: ansible-role-consul
     consul_servers:
     - "192.168.56.11"

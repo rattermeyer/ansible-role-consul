@@ -1,2 +1,5 @@
 consul_is_server: true
 consul_is_ui: true
+consul_join_at_start: true
+consul_retry_join: true
+consul_client_address_bind: true
