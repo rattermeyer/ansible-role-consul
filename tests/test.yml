@@ -2,7 +2,10 @@
 - hosts: consulhosts
   roles:
   - role: rattermeyer.docker
-    pip_version_docker_py: 1.7.0
     docker_group_members: ubuntu
   - role: ansible-role-consul
+    consul_servers:
+    - "192.168.56.11"
+    - "192.168.56.12"
+    - "192.168.56.13"
     tags: consul

@@ -7,10 +7,10 @@
 # you're doing.
 Vagrant.configure("2") do |config|
     machines = {
-                   :server1 => {:ip => '192.168.56.11', :box => 'ubuntu/xenial64', :mem => '256', :cpu => 1 },
-                   :server2 => {:ip => '192.168.56.12', :box => 'ubuntu/xenial64', :mem => '256', :cpu => 1 },
-                   :server3 => {:ip => '192.168.56.13', :box => 'ubuntu/xenial64', :mem => '256', :cpu => 1 },
-                   :agent   => {:ip => '192.168.56.14', :box => 'ubuntu/xenial64', :mem => '256', :cpu => 1 },
+                   :server1 => {:ip => '192.168.56.11', :box => 'geerlingguy/ubuntu1604', :mem => '256', :cpu => 1 },
+                   :server2 => {:ip => '192.168.56.12', :box => 'geerlingguy/ubuntu1604', :mem => '256', :cpu => 1 },
+                   :server3 => {:ip => '192.168.56.13', :box => 'geerlingguy/ubuntu1604', :mem => '256', :cpu => 1 },
+                   :agent   => {:ip => '192.168.56.14', :box => 'geerlingguy/ubuntu1604', :mem => '256', :cpu => 1 },
                  }
 
       machines.each do |machine_name, machine_details|

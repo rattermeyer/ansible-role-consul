@@ -1,2 +1,2 @@
-consul_mode: "server"
-ansible_python_interpreter: /usr/bin/python2.7
+consul_is_server: true
+consul_is_ui: true

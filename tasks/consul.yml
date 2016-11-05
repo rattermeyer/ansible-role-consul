@@ -1,12 +1,17 @@
 - name: Install python-consul
   pip:  name=python-consul  state=present
 
+- name: "templating consul-config"
+  template:
+    src: consul-config.json.j2
+    dest: "{{consul_dir_config}}/consul-config.json"
+
 - name: Pull consul docker image
   docker_image:
     name: "{{consul_image}}"
     tag: "{{consul_version}}"
 
-- name: run consul server container with bootstrap
+- name: run consul
   docker_container:
     name: consul
     image: "{{ consul_image }}:{{consul_version}}"
@@ -14,69 +19,8 @@
     recreate: true
     detach: true
     restart_policy: False
-    network_mode: bridge
-    ports:
-     - 8300:8300
-     - 8301:8301
-     - 8301:8301/udp
-     - 8302:8302
-     - 8302:8302/udp
-     - 8400:8400
-     - 8500:8500
-     - "{{ docker_bridge_ip }}:8600:53"
-     - "{{ docker_bridge_ip }}:8600:53/udp"
+    network_mode: host
     hostname: "{{ ansible_hostname }}"
-    volumes:
-    - /mnt:/data
-    command: agent -server -advertise {{consul_advertise}} -bootstrap-expect {{consul_bootstrap_expect}} -ui-dir /ui
-  when: consul_mode == "server" and consul_bootstrap == "1"
-
-- name: run consul server container with join ip
-  docker_container:
-    name: consul
-    image: "{{ consul_image }}:{{consul_version}}"
-    state: started
-    recreate: true
-    detach: true
-    restart_policy: False
-    network_mode: bridge
-    ports:
-     - 8300:8300
-     - 8301:8301
-     - 8301:8301/udp
-     - 8302:8302
-     - 8302:8302/udp
-     - 8400:8400
-     - 8500:8500
-     - "{{ docker_bridge_ip }}:8600:53"
-     - "{{ docker_bridge_ip }}:8600:53/udp"
-    volumes:
-    - /mnt:/data
-    hostname: "{{ ansible_hostname }}"
-    command: agent -server -advertise {{consul_advertise}} -join {{consul_join_ip}} -ui-dir /ui
-  when: consul_mode == "server" and consul_bootstrap == "0"
-
-- name: run consul agent container with join ip
-  docker_container:
-    name: consul
-    image: "{{ consul_image }}:{{consul_version}}"
-    state: started
-    recreate: true
-    detach: true
-    restart_policy: False
-    network_mode: bridge
-    ports:
-     - 8300:8300
-     - 8301:8301
-     - 8301:8301/udp
-     - 8302:8302
-     - 8302:8302/udp
-     - 8400:8400
-     - 8500:8500
-     - "{{ docker_bridge_ip }}:8600:53"
-     - "{{ docker_bridge_ip }}:8600:53/udp"
-    volumes:
-    - /mnt:/data
-    hostname: "{{ ansible_hostname }}"
-    command: agent -advertise {{consul_advertise}} -join {{consul_join_ip}} -ui-dir /ui
-  when: consul_mode == "agent"
+    volumes: "{{consul_volumes}}"
+    command: agent
+  when: consul_is_server is defined and consul_is_server
