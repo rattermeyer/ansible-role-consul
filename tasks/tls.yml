@@ -1,0 +1,47 @@
+---
+# File: tasks/tls.yml - TLS tasks for Consul
+- name: Create SSL directory
+  file:
+    dest: "{{ consul_tls_dest_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 755
+
+- block:
+  - name: Copy CA certificate
+    become: True
+    copy:
+      src: "{{ consul_tls_src_dir }}/{{ consul_tls_ca_crt }}"
+      dest: "{{ consul_tls_dest_dir }}/{{ consul_tls_ca_crt }}"
+    notify:
+    - reload consul
+    - restart consul
+
+  - name: Copy server certificate
+    become: True
+    copy:
+      src: "{{ consul_tls_src_dir }}/{{ consul_tls_crt }}"
+      dest: "{{ consul_tls_dest_dir }}/{{ consul_tls_crt }}"
+    notify:
+    - reload consul
+    - restart consul
+
+  - name: Copy server key
+    become: True
+    copy:
+      src: "{{ consul_tls_src_dir }}/{{ consul_tls_key }}"
+      dest: "{{ consul_tls_dest_dir }}/{{ consul_tls_key }}"
+    notify:
+    - reload consul
+    - restart consul
+
+  - name: Server TLS configuration
+    become: True
+    template:
+      src: config_server_tls.json.j2
+      dest: "{{ consul_config_path }}/server/config_server_tls.json"
+    notify:
+    - reload consul
+    - restart consul
+  when: consul_tls_enable == True

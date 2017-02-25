@@ -1,0 +1,17 @@
+---
+# handlers file for consul
+
+- name: reload consul
+  command: systemctl daemon-reload
+
+- name: restart consul
+  service:
+    name: consul
+    state: restarted
+    enabled: True
+
+- name: start consul
+  service:
+    name: consul
+    state: started
+    enabled: yes

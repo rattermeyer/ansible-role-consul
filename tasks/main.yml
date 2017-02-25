@@ -1,0 +1,152 @@
+---
+# File: tasks/main.yml - Main tasks for Consul
+
+- name: Check distribution compatibility
+  fail:
+    msg: "{{ ansible_distribution }} is not supported by this role"
+  when: ansible_distribution not in ['Ubuntu']
+
+- name: Fail if not a new release of Ubuntu
+  fail:
+    msg: "{{ ansible_distribution_version }} is not an acceptable version of {{ ansible_distribution }} for this role"
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version|version_compare(16.04, '<')
+
+- name: Fail if specified ethernet interface not found
+  fail:
+    msg: "The ethernet interface specified by consul_iface was not found on this system"
+  when: consul_iface not in ansible_interfaces
+
+- name: Check bootstrapped state
+  stat:
+    path: /etc/consul/.consul_bootstrapped
+  register: bootstrap_marker
+  ignore_errors: true
+
+- name: Add Consul user
+  user:
+    name: "{{ consul_user }}"
+    comment: 'Consul user'
+    uid: "{{ consul_user_id }}"
+    group: bin
+
+- name: Install specified packages
+  include: install.yml
+
+- block:
+    - name: Look for an existing encryption key on a previously boostrapped server
+      shell: 'cat {{ consul_config_path }}/server/config.json | grep "encrypt" | sed -E ''s/"encrypt": "(.+)",?/\1/'' | sed ''s/^ *//;s/ *$//'''
+      register: consul_key_read
+      run_once: true
+
+    - name: Save encryption key (from existing config)
+      set_fact: consul_raw_key={{ consul_key_read.stdout }}
+  when: consul_raw_key is not defined and bootstrap_marker.stat.exists
+
+- name: Writing key locally to share with other servers that are new
+  copy:
+    content: "{{ consul_raw_key }}"
+    dest: "/tmp/consul_raw.key"
+  delegate_to: 127.0.0.1
+  become: no
+  when: consul_raw_key is defined and bootstrap_marker.stat.exists
+
+- name: Reading key for servers that are missing it
+  set_fact:
+    consul_raw_key: "{{ lookup('file', '/tmp/consul_raw.key') }}"
+  when: consul_raw_key is not defined and bootstrap_marker.stat.exists
+
+- name: Deleting key file
+  file:
+    path: /tmp/consul_raw.key
+    state: absent
+  delegate_to: 127.0.0.1
+  become: no
+  when: consul_raw_key is defined and bootstrap_marker.stat.exists
+
+# First run actions
+- block:
+    - name: Generate gossip encryption key
+      shell: "PATH=/usr/local/bin:$PATH consul keygen"
+      register: consul_keygen
+      run_once: true
+    - name: Save encryption key
+      set_fact:
+        consul_raw_key: "{{ consul_keygen.stdout }}"
+  when: consul_raw_key is not defined and not bootstrap_marker.stat.exists
+
+- name: Directories
+  file:
+    dest: "{{ item }}"
+    state: directory
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group}}"
+  with_items:
+    - /etc/consul
+    - /opt/consul
+    - /var/consul
+    - /var/log/consul
+    - /var/run/consul
+    - /etc/consul.d
+    - /etc/consul.d/client
+    - /etc/consul.d/server
+
+- name: Client configuration
+  template:
+    src: config_client.json.j2
+    dest: "{{ consul_config_path }}/client/config.json"
+  notify:
+  - reload consul
+  - restart consul
+
+- name: Server configuration
+  template:
+    src: config_server.json.j2
+    dest: "{{ consul_config_path }}/server/config.json"
+  notify:
+  - reload consul
+  - restart consul
+
+- include: ../tasks/acl.yml
+  when: consul_acl_enable
+
+- name: Atlas configuration
+  template:
+    src: config_atlas.json.j2
+    dest: "{{ consul_config_path }}/{{ item }}/config_atlas.json"
+  with_items:
+    - server
+  when: consul_atlas_enable
+
+# First time configuration
+- block:
+
+  - name: systemd script
+    template:
+      src: consul_systemd.service.j2
+      dest: /lib/systemd/system/consul.service
+      owner: root
+      group: root
+      mode: 644
+    when: ansible_service_mgr == "systemd"
+    notify:
+    - reload consul
+    - start consul
+
+  - name: Bootstrapped marker
+    file:
+      dest: /etc/consul/.consul_bootstrapped
+      state: touch
+
+  when: not bootstrap_marker.stat.exists
+
+- include: ../tasks/tls.yml
+  when: consul_tls_enable
+
+- name: remove tls configuration
+  file:
+    path: "{{ consul_config_path }}/server/config_server_tls.json"
+    state: absent
+  when: consul_tls_enable == False
+
+- include: ../tasks/client.yml
+  when: consul_node_role == "client" and ansible_os_family == "Debian"

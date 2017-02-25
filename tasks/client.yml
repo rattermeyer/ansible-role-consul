@@ -1,0 +1,15 @@
+---
+# File: tasks/client.yml - Ansible dependencies for Consul
+
+- name: Install dependencies for configuration by ansible (1/2)
+  apt:
+    name: "{{ item }}"
+    state: installed
+  with_items:
+  - python-pip
+  - python-setuptools
+- name: Install dependencies for configuration by ansible (2/2)
+  pip:
+    # The following is to ensure that we use the correct version (python2/3 parallel)
+    executable: pip
+    name: python-consul
