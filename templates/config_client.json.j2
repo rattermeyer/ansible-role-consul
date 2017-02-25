@@ -1,5 +1,6 @@
 {% set comma = joiner(", ") %}
 {% set comma_nodes = joiner(", ") %}
+{% set comma_retry_nodes = joiner(", ") %}
 
 {
   "bind_addr": "{{ consul_bind_address }}",
@@ -14,20 +15,23 @@
                      {{ comma() }}"{{ recursor }}"
                  {%- endfor %} ],
   {% endif %}
-  "bootstrap": false,
+
   "server": false,
   "node_name": "{{ consul_node_name }}",
   "datacenter": "{{ consul_datacenter }}",
   "data_dir": "{{ consul_data_path }}",
-  "encrypt": "{{ consul_raw_key }}",
+  {% if consul_encrypt_key is defined -%}
+  "encrypt": "{{ consul_encrypt_key }}",
+  {% endif -%}
   "log_level": "{{ consul_log_level }}",
   "enable_syslog": {{ consul_syslog_enable|lower }},
-  "start_join": [
-      {% set interface = 'ansible_' ~ consul_iface %}
-      {%- for host in groups[consul_group_name] -%}
-      {%- if host != inventory_hostname and (hostvars[host]['consul_node_role'] == 'server') -%}
-      {{ comma_nodes() }}"{{ hostvars[host][interface]['ipv4']['address'] }}"
-      {% endif -%}
-      {%- endfor -%}
-  ]
+  "retry_join": [
+     {% set interface = 'ansible_' ~ consul_iface %}
+     {%- for host in groups[consul_group_name] -%}
+     {%- if host != inventory_hostname and (hostvars[host]['consul_node_role'] == 'server') -%}
+     {{ comma_retry_nodes() }}"{{ hostvars[host][interface]['ipv4']['address'] }}"
+     {% endif %}
+     {% endfor %}
+    ],
+  "ui": false
 }
