@@ -18,7 +18,7 @@
     - reload consul
     - restart consul
 
-  - name: Copy server certificate
+  - name: Copy certificate
     become: True
     copy:
       src: "{{ consul_tls_src_dir }}/{{ consul_tls_crt }}"
@@ -27,7 +27,7 @@
     - reload consul
     - restart consul
 
-  - name: Copy server key
+  - name: Copy key
     become: True
     copy:
       src: "{{ consul_tls_src_dir }}/{{ consul_tls_key }}"
@@ -36,11 +36,11 @@
     - reload consul
     - restart consul
 
-  - name: Server TLS configuration
+  - name: TLS configuration
     become: True
     template:
-      src: config_server_tls.json.j2
-      dest: "{{ consul_config_path }}/server/config_server_tls.json"
+      src: config_tls.json.j2
+      dest: "{{ consul_config_path }}/{{consul_node_role}}/config_tls.json"
     notify:
     - reload consul
     - restart consul
