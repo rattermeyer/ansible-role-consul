@@ -36,6 +36,7 @@ consul_acl_master_token: "{{ lookup('env','CONSUL_ACL_MASTER_TOKEN') | default('
 consul_acl_master_token_display: "{{ lookup('env','CONSUL_ACL_MASTER_TOKEN_DISPLAY') | default(false, true) }}"
 consul_acl_replication_token: "{{ lookup('env','CONSUL_ACL_REPLICATION_TOKEN') | default('CH4NG3M3CH4NG3M3CH4NG3M3CH4NG3M3', true) }}"
 consul_acl_replication_token_display: "{{ lookup('env','CONSUL_ACL_REPLICATION_TOKEN_DISPLAY') | default(false, true) }}"
+consul_acl_token: "{{ consul_acl_master_token }}"
 
 ## TLS
 consul_tls_enable: "{{ lookup('env','CONSUL_TLS_ENABLE') | default(false, true) }}"

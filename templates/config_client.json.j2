@@ -19,6 +19,7 @@
   "server": false,
   "node_name": "{{ consul_node_name }}",
   "datacenter": "{{ consul_datacenter }}",
+  "acl_token": "{{ consul_acl_token }}",
   "data_dir": "{{ consul_data_path }}",
   {% if consul_encrypt_key is defined -%}
   "encrypt": "{{ consul_encrypt_key }}",
