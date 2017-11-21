@@ -2,7 +2,7 @@
 # defaults file for rattermeyer.consul
 
 ## Core
-consul_version: "{{ lookup('env','CONSUL_VERSION') | default('0.9.2', true) }}"
+consul_version: "{{ lookup('env','CONSUL_VERSION') | default('1.0.1', true) }}"
 consul_zip_url: "https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_linux_amd64.zip"
 consul_checksum_file_url: "https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version}}_SHA256SUMS"
 consul_bin_path: "/usr/local/bin"
@@ -22,7 +22,6 @@ consul_bind_address: "{{ hostvars[inventory_hostname]['ansible_'+consul_iface]['
 consul_dns_bind_address: "0.0.0.0"
 consul_http_bind_address: "0.0.0.0"
 consul_https_bind_address: "0.0.0.0"
-consul_rpc_bind_address: "0.0.0.0"
 consul_node_name: "{{ inventory_hostname_short }}"
 consul_recursors: "{{ lookup('env','CONSUL_RECURSORS') | default('[]', true) }}"
 consul_bootstrap_expect: 3
