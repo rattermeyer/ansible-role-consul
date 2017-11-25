@@ -40,13 +40,13 @@
   notify:
     - restart consul
 
-- name: ACL policy configuration
-  template:
-    src: config_acl_policy.hcl.j2
-    dest: "{{ consul_config_path }}/{{ item }}/config_acl_policy.hcl"
-  with_items:
-  - client
-  - server
-  notify:
-  - reload consul
-  - restart consul
+    #- name: ACL policy configuration
+    #  template:
+    #    src: config_acl_policy.hcl.j2
+    #    dest: "{{ consul_config_path }}/{{ item }}/config_acl_policy.hcl"
+    #  with_items:
+    #  - client
+    #  - server
+    #  notify:
+    #  - reload consul
+    #  - restart consul

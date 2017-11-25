@@ -59,7 +59,6 @@
   unarchive:
     src: "{{ role_path }}/files/{{ consul_pkg }}"
     dest: "{{ role_path }}/files/"
-    creates: "{{ role_path }}/files/consul"
   run_once: true
   tags: installation
 
@@ -70,6 +69,7 @@
     owner: "{{ consul_user }}"
     group: "{{ consul_group }}"
     mode: 0755
+  notify: restart consul
   tags: installation
 
 - name: Cleanup

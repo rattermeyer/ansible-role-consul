@@ -38,6 +38,10 @@
       register: consul_key_read
       run_once: true
 
+    - debug:
+        msg: "{{consul_key_read}}"
+        verbosity: 2
+
     - name: Save encryption key (from existing config)
       set_fact: consul_raw_key={{ consul_key_read.stdout }}
   when: consul_raw_key is not defined and bootstrap_marker.stat.exists
