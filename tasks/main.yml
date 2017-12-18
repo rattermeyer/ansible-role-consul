@@ -107,6 +107,12 @@
   notify:
   - reload consul
   - restart consul
+  
+- name: Ensure consul agent is running
+  service:
+    name: consul
+    state: started
+    enabled: yes
 
 - include: ../tasks/acl.yml
   when: consul_acl_enable
