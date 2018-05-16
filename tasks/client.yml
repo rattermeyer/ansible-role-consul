@@ -4,7 +4,7 @@
 - name: Install dependencies for configuration by ansible (1/2)
   apt:
     name: "{{ item }}"
-    state: installed
+    state: present
     update_cache: True
   with_items:
   - python-pip

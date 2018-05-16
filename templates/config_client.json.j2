@@ -25,13 +25,6 @@
   {% endif -%}
   "log_level": "{{ consul_log_level }}",
   "enable_syslog": {{ consul_syslog_enable|lower }},
-  "retry_join": [
-     {% set interface = 'ansible_' ~ consul_iface %}
-     {%- for host in groups[consul_group_name] -%}
-     {%- if host != inventory_hostname and (hostvars[host]['consul_node_role'] == 'server') -%}
-     {{ comma_retry_nodes() }}"{{ hostvars[host][interface]['ipv4']['address'] }}"
-     {% endif %}
-     {% endfor %}
-    ],
+  "retry_join": ["{{ groups[consul_group_name] | map('extract', hostvars, 'ansible_host')|list|join("\", \"re")}}"],
   "ui": false
 }
