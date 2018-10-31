@@ -24,7 +24,7 @@ consul_http_bind_address: "0.0.0.0"
 consul_https_bind_address: "0.0.0.0"
 consul_node_name: "{{ inventory_hostname_short }}"
 consul_recursors: "{{ lookup('env','CONSUL_RECURSORS') | default('[]', true) }}"
-consul_bootstrap_expect: 3
+consul_bootstrap_expect: "{{ groups['consul_servers'] | length }}"
 
 ## ACL
 consul_acl_enable: "{{ lookup('env','CONSUL_ACL_ENABLE') | default(false, true) }}"
